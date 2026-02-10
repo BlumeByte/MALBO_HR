@@ -1,30 +1,59 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../constants/app_routes.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/people/presentation/pages/people_list_page.dart';
+import '../../features/leave/presentation/pages/leave_home_page.dart';
+import '../../features/documents/presentation/pages/documents_page.dart';
+import '../../features/reports/presentation/pages/reports_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 
-final appRouter = GoRouter(
-  initialLocation: '/login',
-  redirect: (context, state) {
-    final container = ProviderScope.containerOf(context);
-    final user = container.read(authControllerProvider);
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final authUser = ref.watch(authControllerProvider);
 
-    final loggingIn = state.matchedLocation == '/login';
+  return GoRouter(
+    initialLocation: AppRoutes.login,
+    redirect: (context, state) {
+      final loggingIn = state.matchedLocation == AppRoutes.login;
+      final signedIn = authUser != null;
 
-    if (user == null && !loggingIn) return '/login';
-    if (user != null && loggingIn) return '/';
+      if (!signedIn && !loggingIn) return AppRoutes.login;
+      if (signedIn && loggingIn) return AppRoutes.dashboard;
 
-    return null;
-  },
-  routes: [
-    GoRoute(
-      path: '/login',
-      builder: (_, __) => const LoginPage(),
-    ),
-    GoRoute(
-      path: '/',
-      builder: (_, __) => const DashboardPage(),
-    ),
-  ],
-);
+      return null;
+    },
+    routes: [
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (_, __) => const LoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.dashboard,
+        builder: (_, __) => const DashboardPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.people,
+        builder: (_, __) => const PeopleListPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.leave,
+        builder: (_, __) => const LeaveHomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.documents,
+        builder: (_, __) => const DocumentsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.reports,
+        builder: (_, __) => const ReportsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (_, __) => const SettingsPage(),
+      ),
+    ],
+  );
+});
