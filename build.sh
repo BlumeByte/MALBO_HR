@@ -1,12 +1,15 @@
 #!/bin/bash
 set -e
 
-echo "Installing Flutter..."
-git clone https://github.com/flutter/flutter.git -b stable --depth 1
+echo "Downloading Flutter stable..."
 
+curl -L https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.2-stable.tar.xz -o flutter.tar.xz
+tar -xf flutter.tar.xz
 export PATH="$PWD/flutter/bin:$PATH"
 
 flutter --version
+flutter config --enable-web
+
 flutter pub get
 
 echo "Building Flutter Web..."
