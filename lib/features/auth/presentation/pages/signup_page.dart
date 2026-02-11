@@ -64,15 +64,15 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                       : ElevatedButton(
                           onPressed: () {
                             ref.read(authControllerProvider.notifier).signUp(
-                                  email: _email.text,
-                                  password: _password.text,
-                                  companyName: _company.text,
-                                  firstName: _firstName.text,
-                                  lastName: _lastName.text,
+                                  email: _email.text.trim(),
+                                  password: _password.text.trim(),
+                                  companyName: _company.text.trim(),
+                                  firstName: _firstName.text.trim(),
+                                  lastName: _lastName.text.trim(),
                                 );
                           },
-                          child: const Text("Sign Up"),
-                        )
+                          child: const Text("Create Company Account"),
+                        ),
                 ],
               ),
             ),
