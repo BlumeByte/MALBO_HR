@@ -4,5 +4,6 @@
         "MALBO",
         "riverpod",
         "supabase"
-    ]
+    ],
+    "cmake.sourceDirectory": "D:/Softwares/flutter/packages/flutter_tools/templates/app/windows.tmpl/flutter"
 }
