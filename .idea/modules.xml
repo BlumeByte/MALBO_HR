@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/malbo_hr.iml" filepath="$PROJECT_DIR$/malbo_hr.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/malbo_hr_android.iml" filepath="$PROJECT_DIR$/android/malbo_hr_android.iml" />
     </modules>
   </component>
 </project>
