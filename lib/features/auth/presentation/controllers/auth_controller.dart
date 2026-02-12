@@ -114,6 +114,7 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
 
       state = AsyncValue.data(user);
     } catch (e, st) {
+      print("SIGNUP ERROR: $e");
       state = AsyncValue.error(e, st);
     }
   }
