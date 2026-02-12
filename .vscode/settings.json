@@ -3,7 +3,9 @@
         "canvaskit",
         "MALBO",
         "riverpod",
-        "supabase"
+        "subosito",
+        "supabase",
+        "vercel"
     ],
     "cmake.sourceDirectory": "D:/Softwares/flutter/packages/flutter_tools/templates/app/windows.tmpl/flutter"
 }
