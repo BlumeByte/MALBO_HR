@@ -7,9 +7,5 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SupabaseService.init();
 
-  runApp(
-    const ProviderScope(
-      child: MalboHRApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MalboHRApp()));
 }
