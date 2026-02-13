@@ -17,6 +17,10 @@ dependencies:
   csv: ^6.0.0
   path_provider: ^2.1.4
   share_plus: ^10.0.3
+  image_picker: ^1.1.2
+  mime: ^1.0.5
+  fl_chart: ^0.68.0
+
 
   # Supabase
   supabase_flutter: ^2.5.6

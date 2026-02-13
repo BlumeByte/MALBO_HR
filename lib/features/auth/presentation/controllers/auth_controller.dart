@@ -22,7 +22,6 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
     });
   }
 
-  // ================= SIGN IN =================
   Future<void> signIn({
     required String email,
     required String password,
@@ -37,66 +36,6 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
 
       state = AsyncValue.data(res.user);
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  // ================= SIGN UP =================
-  Future<void> signUp({
-    required String email,
-    required String password,
-    required String companyName,
-    required String firstName,
-    required String lastName,
-    required String phone,
-  }) async {
-    state = const AsyncValue.loading();
-
-    try {
-      // 1️⃣ Create Auth User
-      final authRes = await _client.auth.signUp(
-        email: email,
-        password: password,
-      );
-
-      final user = authRes.user;
-
-      if (user == null) {
-        throw Exception("User creation failed");
-      }
-
-      // 2️⃣ Create Company
-      final companyRes = await _client
-          .from('companies')
-          .insert({
-            'name': companyName,
-          })
-          .select()
-          .single();
-
-      final companyId = companyRes['id'];
-
-      // 3️⃣ Create Membership
-      await _client.from('company_members').insert({
-        'company_id': companyId,
-        'user_id': user.id,
-        'role': 'super_admin',
-      });
-
-      // 4️⃣ Create Employee
-      await _client.from('employees').insert({
-        'company_id': companyId,
-        'user_id': user.id,
-        'first_name': firstName,
-        'last_name': lastName,
-        'email': email,
-        'phone': phone,
-        'status': 'active',
-      });
-
-      state = AsyncValue.data(user);
-    } catch (e, st) {
-      print("SIGNUP ERROR: $e");
       state = AsyncValue.error(e, st);
     }
   }

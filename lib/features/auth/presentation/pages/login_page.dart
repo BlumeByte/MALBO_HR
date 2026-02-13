@@ -2,51 +2,85 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/auth_controller.dart';
+import '../../../../core/utils/validators.dart';
 
-class LoginPage extends ConsumerWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final email = TextEditingController();
-    final password = TextEditingController();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends ConsumerState<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
 
     return Scaffold(
       body: Center(
         child: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                "Sign In",
-                style: TextStyle(fontSize: 24),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: email,
-                decoration: const InputDecoration(
-                  labelText: "Email",
+          width: 420,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Sign In", style: TextStyle(fontSize: 24)),
+                const SizedBox(height: 18),
+                TextFormField(
+                  controller: _email,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  validator: Validators.email,
+                  keyboardType: TextInputType.emailAddress,
                 ),
-              ),
-              TextField(
-                controller: password,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Password",
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _password,
+                  decoration: const InputDecoration(labelText: "Password"),
+                  obscureText: true,
+                  validator: Validators.password,
                 ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  ref.read(authControllerProvider.notifier).signIn(
-                        email: email.text.trim(),
-                        password: password.text.trim(),
-                      );
-                },
-                child: const Text("Login"),
-              ),
-            ],
+                const SizedBox(height: 18),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: authState.isLoading
+                        ? null
+                        : () async {
+                            if (!_formKey.currentState!.validate()) return;
+
+                            await ref
+                                .read(authControllerProvider.notifier)
+                                .signIn(
+                                  email: _email.text.trim(),
+                                  password: _password.text,
+                                );
+
+                            final s = ref.read(authControllerProvider);
+                            if (s.hasError && mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text('Login failed: ${s.error}')),
+                              );
+                            }
+                          },
+                    child:
+                        Text(authState.isLoading ? 'Signing in...' : 'Login'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

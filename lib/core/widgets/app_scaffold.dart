@@ -3,6 +3,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import 'app_drawer.dart';
 import 'app_bottom_nav.dart';
+import 'profile_menu.dart';
 
 class AppScaffold extends StatelessWidget {
   final String title;
@@ -25,7 +26,10 @@ class AppScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        actions: actions,
+        actions: [
+          ...(actions ?? []),
+          const ProfileMenu(),
+        ],
       ),
       drawer: isDesktop ? null : const AppDrawer(),
       body: Row(
