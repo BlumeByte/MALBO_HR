@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:malbo_hr/core/router/go_router_refresh_stream.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants/app_routes.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
@@ -9,17 +11,18 @@ import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/people/presentation/pages/people_list_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  ref.watch(authControllerProvider);
+
   return GoRouter(
     initialLocation: AppRoutes.login,
+    refreshListenable: GoRouterRefreshStream(
+      Supabase.instance.client.auth.onAuthStateChange
+          .map((event) => event.session),
+    ),
     redirect: (context, state) {
-      final authState = ref.read(authControllerProvider);
+      final user = Supabase.instance.client.auth.currentUser;
 
-      // 🚫 DO NOT redirect while auth is loading
-      if (authState.isLoading) {
-        return null;
-      }
-
-      final isLoggedIn = authState.value != null;
+      final isLoggedIn = user != null;
 
       final loggingIn = state.matchedLocation == AppRoutes.login;
       final signingUp = state.matchedLocation == AppRoutes.signup;

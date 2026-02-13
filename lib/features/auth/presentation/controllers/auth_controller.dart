@@ -14,36 +14,25 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
   }
 
   void _init() {
-    try {
-      final currentUser = _client.auth.currentUser;
-      state = AsyncValue.data(currentUser);
+    final currentUser = _client.auth.currentUser;
+    state = AsyncValue.data(currentUser);
 
-      _client.auth.onAuthStateChange.listen((data) {
-        state = AsyncValue.data(data.session?.user);
-      });
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+    _client.auth.onAuthStateChange.listen((data) {
+      state = AsyncValue.data(data.session?.user);
+    });
   }
 
-  // =========================
-  // SIGN IN
-  // =========================
-  Future<void> signIn(String email, String password) async {
-    if (email.trim().isEmpty || password.trim().isEmpty) {
-      state = AsyncValue.error(
-        Exception("Email and password required"),
-        StackTrace.current,
-      );
-      return;
-    }
-
+  // ================= SIGN IN =================
+  Future<void> signIn({
+    required String email,
+    required String password,
+  }) async {
     state = const AsyncValue.loading();
 
     try {
       final res = await _client.auth.signInWithPassword(
-        email: email.trim(),
-        password: password.trim(),
+        email: email,
+        password: password,
       );
 
       state = AsyncValue.data(res.user);
@@ -52,35 +41,22 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
     }
   }
 
-  // =========================
-  // SIGN UP (FULL COMPANY CREATION)
-  // =========================
+  // ================= SIGN UP =================
   Future<void> signUp({
     required String email,
     required String password,
     required String companyName,
     required String firstName,
     required String lastName,
+    required String phone,
   }) async {
-    if (email.trim().isEmpty ||
-        password.trim().isEmpty ||
-        companyName.trim().isEmpty ||
-        firstName.trim().isEmpty ||
-        lastName.trim().isEmpty) {
-      state = AsyncValue.error(
-        Exception("All fields are required"),
-        StackTrace.current,
-      );
-      return;
-    }
-
     state = const AsyncValue.loading();
 
     try {
-      // 1️⃣ Create auth user
+      // 1️⃣ Create Auth User
       final authRes = await _client.auth.signUp(
-        email: email.trim(),
-        password: password.trim(),
+        email: email,
+        password: password,
       );
 
       final user = authRes.user;
@@ -89,27 +65,33 @@ class AuthController extends StateNotifier<AsyncValue<User?>> {
         throw Exception("User creation failed");
       }
 
-      // 2️⃣ Create company
+      // 2️⃣ Create Company
       final companyRes = await _client
           .from('companies')
-          .insert({'name': companyName.trim()})
+          .insert({
+            'name': companyName,
+          })
           .select()
           .single();
 
       final companyId = companyRes['id'];
 
-      // 3️⃣ Add membership (super_admin)
-      await _client.from('company_members').insert(
-          {'company_id': companyId, 'user_id': user.id, 'role': 'super_admin'});
+      // 3️⃣ Create Membership
+      await _client.from('company_members').insert({
+        'company_id': companyId,
+        'user_id': user.id,
+        'role': 'super_admin',
+      });
 
-      // 4️⃣ Create employee profile
+      // 4️⃣ Create Employee
       await _client.from('employees').insert({
         'company_id': companyId,
         'user_id': user.id,
-        'first_name': firstName.trim(),
-        'last_name': lastName.trim(),
-        'email': email.trim(),
-        'status': 'active'
+        'first_name': firstName,
+        'last_name': lastName,
+        'email': email,
+        'phone': phone,
+        'status': 'active',
       });
 
       state = AsyncValue.data(user);
